@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { Login } from './components/Login';
+import { Register } from './components/Register';
+import { Chat } from './components/Chat';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLogin, setShowLogin] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem('token');
+    const savedUsername = localStorage.getItem('username');
+
+    if (savedToken && savedUsername) {
+      setToken(savedToken);
+      setUsername(savedUsername);
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLoginSuccess = (newToken: string, newUsername: string) => {
+    setToken(newToken);
+    setUsername(newUsername);
+    setIsAuthenticated(true);
+  };
+
+  const handleRegisterSuccess = (newToken: string, newUsername: string) => {
+    setToken(newToken);
+    setUsername(newUsername);
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setUsername(null);
+    setIsAuthenticated(false);
+    setShowLogin(true);
+  };
+
+  if (isAuthenticated && token && username) {
+    return <Chat token={token} username={username} onLogout={handleLogout} />;
+  }
+
+  if (showLogin) {
+    return (
+      <Login
+        onLoginSuccess={handleLoginSuccess}
+        onSwitchToRegister={() => setShowLogin(false)}
+      />
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Register
+      onRegisterSuccess={handleRegisterSuccess}
+      onSwitchToLogin={() => setShowLogin(true)}
+    />
+  );
 }
 
-export default App
+export default App;
