@@ -37,18 +37,19 @@ export const handleMessage = async (client: ConnectedClient, data: WebSocketMess
 
 export const handleJoin = (client: ConnectedClient, data: WebSocketMessage): void => {
   const { roomId } = data.payload;
-  client.roomId = roomId || 'general';
+  const targetRoom = roomId || 'general';
+  client.roomId = targetRoom;
 
   const joinMessage: WebSocketMessage = {
     type: MessageTypes.USER_JOINED,
     payload: {
       username: client.username,
       userId: client.userId,
-      roomId: client.roomId,
+      roomId: targetRoom,
     },
   };
 
-  broadcastToRoom(client.roomId, joinMessage);
+  broadcastToRoom(targetRoom, joinMessage);
 };
 
 export const handleLeave = (client: ConnectedClient): void => {

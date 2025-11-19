@@ -33,31 +33,42 @@ export const Chat: React.FC<ChatProps> = ({ token, username, onLogout }) => {
     wsService.connect(token);
     wsService.joinRoom(roomId);
 
-    wsService.on(MessageType.MESSAGE, (message: Message) => {
+    const handleMessageReceived = (message: Message) => {
       setMessages((prev) => [...prev, message]);
-    });
+    };
 
-    wsService.on(MessageType.USER_JOINED, (data) => {
+    const handleUserJoined = (data: any) => {
       console.log(`${data.username} joined the room`);
-    });
+    };
 
-    wsService.on(MessageType.USER_LEFT, (data) => {
+    const handleUserLeft = (data: any) => {
       console.log(`${data.username} left the room`);
-    });
+    };
 
-    wsService.on(MessageType.TYPING, (data) => {
+    const handleTypingReceived = (data: any) => {
       if (data.isTyping) {
         setTypingUsers((prev) => [...prev, data.username]);
       } else {
         setTypingUsers((prev) => prev.filter((u) => u !== data.username));
       }
-    });
+    };
 
-    wsService.on(MessageType.ERROR, (error) => {
+    const handleError = (error: any) => {
       console.error('WebSocket error:', error);
-    });
+    };
+
+    wsService.on(MessageType.MESSAGE, handleMessageReceived);
+    wsService.on(MessageType.USER_JOINED, handleUserJoined);
+    wsService.on(MessageType.USER_LEFT, handleUserLeft);
+    wsService.on(MessageType.TYPING, handleTypingReceived);
+    wsService.on(MessageType.ERROR, handleError);
 
     return () => {
+      wsService.off(MessageType.MESSAGE, handleMessageReceived);
+      wsService.off(MessageType.USER_JOINED, handleUserJoined);
+      wsService.off(MessageType.USER_LEFT, handleUserLeft);
+      wsService.off(MessageType.TYPING, handleTypingReceived);
+      wsService.off(MessageType.ERROR, handleError);
       wsService.disconnect();
     };
   }, [token, roomId]);
@@ -96,7 +107,7 @@ export const Chat: React.FC<ChatProps> = ({ token, username, onLogout }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div style={{ padding: '15px', backgroundColor: '#007bff', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>Chat Room - {roomId}</h2>
+        {/* <h2 style={{ margin: 0 }}>Chat Room - {roomId}</h2> */}
         <div>
           <span style={{ marginRight: '15px' }}>Welcome, {username}</span>
           <button onClick={handleLogout} style={{ padding: '5px 15px', backgroundColor: 'white', color: '#007bff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
