@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { Message, MessageType } from '../types';
+import { type Message, MessageType } from '../types';
 import { wsService } from '../services/websocket';
 import { getMessages } from '../services/api';
 import { MessageList } from './MessageList';
